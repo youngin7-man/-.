@@ -5,7 +5,11 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import font_manager, rc
+import koreanize_matplotlib  # ✅ 한글 폰트 자동 적용
+
+from sklearn.preprocessing import MinMaxScaler
+from scipy.stats import pearsonr
+
 
 # -----------------------------
 # 한글 폰트 설정 (Streamlit / Matplotlib)
