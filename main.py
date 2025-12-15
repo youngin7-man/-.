@@ -97,13 +97,14 @@ elif menu == "🧹 데이터 전처리":
 # 📈 시각화 분석
 elif menu == "📈 시각화 분석":
     st.header("📈 데이터 시각화")
-    fig1, ax1 = plt.subplots()
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
     ax1.scatter(df['study_time'], df['score'])
     ax1.set_xlabel("📘 학습 시간 (시간)")
     ax1.set_ylabel("📝 성적")
-    ax1.set_title("📈 학습 시간 vs 성적", fontsize=14)
+    ax1.set_title("📈 학습 시간 vs 성적", fontsize=16, pad=20)
     plt.tight_layout()
-    st.pyplot(fig1)
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
+st.pyplot(fig1)
 
     fig2, ax2 = plt.subplots()
     ax2.hist(df['score'], bins=10)
@@ -150,4 +151,4 @@ elif menu == "✅ 결론":
     📌 **결론적으로**, 효율적인 학습 방법과 적절한 학습 시간이 함께 이루어져야 좋은 성과를 낼 수 있다.
     """)
 
-
+st.caption("✨ Streamlit을 활용한 빅데이터 분석 프로젝트 예시 ✨")
