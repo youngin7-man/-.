@@ -5,25 +5,33 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import koreanize_matplotlib  # ✅ 한글 폰트 자동 적용
+import os
 
+from matplotlib import font_manager, rc
 from sklearn.preprocessing import MinMaxScaler
 from scipy.stats import pearsonr
 
-
 # -----------------------------
-# 한글 폰트 설정 (Streamlit / Matplotlib)
+# ✅ 한글 폰트 설정 (Python 3.13 + Streamlit Cloud 대응)
 # -----------------------------
-try:
-    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
-    font = font_manager.FontProperties(fname=font_path).get_name()
-    rc('font', family=font)
-except:
-    rc('font', family='DejaVu Sans')
+font_candidates = [
+    "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
+    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"
+]
 
-plt.rcParams['axes.unicode_minus'] = False
-from sklearn.preprocessing import MinMaxScaler
-from scipy.stats import pearsonr
+font_path = None
+for path in font_candidates:
+    if os.path.exists(path):
+        font_path = path
+        break
+
+if font_path:
+    font_name = font_manager.FontProperties(fname=font_path).get_name()
+    rc("font", family=font_name)
+else:
+    rc("font", family="DejaVu Sans")
+
+plt.rcParams["axes.unicode_minus"] = False
 
 # -----------------------------
 # 1. 페이지 설정
@@ -43,7 +51,15 @@ st.markdown("""
 st.sidebar.title("📂 메뉴")
 menu = st.sidebar.radio(
     "원하는 분석을 선택하세요 👇",
-    ["🏠 프로젝트 소개", "📊 데이터 확인", "🧹 데이터 전처리", "📈 시각화 분석", "🔍 상관관계 분석", "📌 추가 분석", "✅ 결론"]
+    [
+        "🏠 프로젝트 소개",
+        "📊 데이터 확인",
+        "🧹 데이터 전처리",
+        "📈 시각화 분석",
+        "🔍 상관관계 분석",
+        "📌 추가 분석",
+        "✅ 결론"
+    ]
 )
 
 # -----------------------------
@@ -89,12 +105,12 @@ elif menu == "🧹 데이터 전처리":
     st.success("결측치가 제거되었습니다 ✅")
 
     st.subheader("2️⃣ 이상치 처리")
-    clean_df = clean_df[(clean_df['study_time'] >= 0) & (clean_df['study_time'] <= 12)]
+    clean_df = clean_df[(clean_df["study_time"] >= 0) & (clean_df["study_time"] <= 12)]
     st.success("비정상적인 값이 제거되었습니다 ✅")
 
     st.subheader("3️⃣ 정규화")
     scaler = MinMaxScaler()
-    clean_df[['study_time_norm']] = scaler.fit_transform(clean_df[['study_time']])
+    clean_df["study_time_norm"] = scaler.fit_transform(clean_df[["study_time"]])
     st.write("전처리 후 데이터")
     st.dataframe(clean_df.head())
 
@@ -104,29 +120,27 @@ elif menu == "📈 시각화 분석":
 
     # 1️⃣ 산점도
     fig1, ax1 = plt.subplots(figsize=(10, 6))
-    ax1.scatter(df['study_time'], df['score'])
+    ax1.scatter(df["study_time"], df["score"])
     ax1.set_xlabel("📘 학습 시간 (시간)")
     ax1.set_ylabel("📝 성적")
     ax1.set_title("📈 학습 시간 vs 성적", fontsize=16, pad=20)
-
     plt.subplots_adjust(top=0.88)
     st.pyplot(fig1)
 
     # 2️⃣ 히스토그램
     fig2, ax2 = plt.subplots(figsize=(10, 6))
-    ax2.hist(df['score'], bins=10)
-    ax2.set_title("📊 성적 분포", fontsize=14, pad=20)
+    ax2.hist(df["score"], bins=10)
+    ax2.set_title("📊 성적 분포", fontsize=16, pad=20)
     ax2.set_xlabel("성적")
     ax2.set_ylabel("학생 수")
-
     plt.subplots_adjust(top=0.88)
     st.pyplot(fig2)
-
 
 # 🔍 상관관계 분석
 elif menu == "🔍 상관관계 분석":
     st.header("🔍 상관관계 분석")
-    corr, p = pearsonr(df['study_time'], df['score'])
+    corr, p = pearsonr(df["study_time"], df["score"])
+
     st.metric("📈 피어슨 상관계수", f"{corr:.2f}")
     st.metric("📉 p-value", f"{p:.4f}")
 
@@ -140,15 +154,19 @@ elif menu == "🔍 상관관계 분석":
 # 📌 추가 분석
 elif menu == "📌 추가 분석":
     st.header("📌 추가 분석")
+
     bins = [0, 2, 4, 6, 8, 10, 12]
     labels = ["0~2", "2~4", "4~6", "6~8", "8~10", "10~12"]
-    df['time_group'] = pd.cut(df['study_time'], bins=bins, labels=labels)
-    avg_score = df.groupby('time_group')['score'].mean()
+    df["time_group"] = pd.cut(df["study_time"], bins=bins, labels=labels)
 
-    fig3, ax3 = plt.subplots()
-    avg_score.plot(kind='bar', ax=ax3)
-    ax3.set_title("⏱ 학습 시간 구간별 평균 성적", fontsize=14)
-    plt.tight_layout()
+    avg_score = df.groupby("time_group")["score"].mean()
+
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
+    avg_score.plot(kind="bar", ax=ax3)
+    ax3.set_title("⏱ 학습 시간 구간별 평균 성적", fontsize=16, pad=20)
+    ax3.set_xlabel("학습 시간 구간")
+    ax3.set_ylabel("평균 성적")
+    plt.subplots_adjust(top=0.88)
     st.pyplot(fig3)
 
 # ✅ 결론
