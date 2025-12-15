@@ -88,12 +88,14 @@ elif menu == "📈 시각화 분석":
     ax1.scatter(df['study_time'], df['score'])
     ax1.set_xlabel("📘 학습 시간 (시간)")
     ax1.set_ylabel("📝 성적")
-    ax1.set_title("📈 학습 시간 vs 성적")
+    ax1.set_title("📈 학습 시간 vs 성적", fontsize=14)
+    plt.tight_layout()
     st.pyplot(fig1)
 
     fig2, ax2 = plt.subplots()
     ax2.hist(df['score'], bins=10)
-    ax2.set_title("📊 성적 분포")
+    ax2.set_title("📊 성적 분포", fontsize=14)
+    plt.tight_layout()
     st.pyplot(fig2)
 
 # 🔍 상관관계 분석
@@ -120,8 +122,8 @@ elif menu == "📌 추가 분석":
 
     fig3, ax3 = plt.subplots()
     avg_score.plot(kind='bar', ax=ax3)
-    ax3.set_title("⏱ 학습 시간 구간별 평균 성적")
-    ax3.set_ylabel("📊 평균 성적")
+    ax3.set_title("⏱ 학습 시간 구간별 평균 성적", fontsize=14)
+    plt.tight_layout()
     st.pyplot(fig3)
 
 # ✅ 결론
