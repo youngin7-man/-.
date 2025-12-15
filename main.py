@@ -5,6 +5,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import koreanize_matplotlib  # 🔥 한글 깨짐 해결 핵심
 import os
 
 from matplotlib import font_manager, rc
