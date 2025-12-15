@@ -5,6 +5,19 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import font_manager, rc
+
+# -----------------------------
+# 한글 폰트 설정 (Streamlit / Matplotlib)
+# -----------------------------
+try:
+    font_path = "/usr/share/fonts/truetype/nanum/NanumGothic.ttf"
+    font = font_manager.FontProperties(fname=font_path).get_name()
+    rc('font', family=font)
+except:
+    rc('font', family='DejaVu Sans')
+
+plt.rcParams['axes.unicode_minus'] = False
 from sklearn.preprocessing import MinMaxScaler
 from scipy.stats import pearsonr
 
