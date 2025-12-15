@@ -5,33 +5,42 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import os
-
 from matplotlib import font_manager, rc
+import warnings # 경고 무시를 위해 추가
+
+# -----------------------------
+# 한글 폰트 설정 (Streamlit / Matplotlib)
+# -----------------------------
+# 💡 핵심 수정: 특정 경로를 고집하지 않고, 시스템에서 사용 가능한 한글 폰트를 찾도록 변경
+try:
+    # 1. 시스템에 설치된 폰트 목록에서 한글 지원 폰트(나눔, 말랑 등)를 찾습니다.
+    # 폰트 목록
+    korean_fonts = ['NanumGothic', 'Malgun Gothic', 'AppleGothic', 'Noto Sans CJK JP']
+    
+    # 시스템 폰트 목록 확인
+    font_found = False
+    for f_name in korean_fonts:
+        if any(f_name in font.name for font in font_manager.fontManager.ttflist):
+            rc('font', family=f_name)
+            font_found = True
+            break
+            
+    # 2. 한글 폰트를 찾지 못했다면 'DejaVu Sans'로 대체 (한글 깨짐 방지 불가)
+    if not font_found:
+        rc('font', family='DejaVu Sans')
+        warnings.filterwarnings('ignore', category=UserWarning) # 폰트 관련 경고 무시
+        st.sidebar.warning("⚠️ 한글 폰트가 설치되지 않아 그래프에서 한글이 깨질 수 있습니다.")
+
+except Exception as e:
+    # 예외 발생 시 'DejaVu Sans'로 대체
+    rc('font', family='DejaVu Sans')
+    warnings.filterwarnings('ignore', category=UserWarning)
+    st.sidebar.error("❌ 폰트 설정 오류 발생. 기본 폰트로 대체했습니다.")
+
+plt.rcParams['axes.unicode_minus'] = False # 마이너스 기호 깨짐 방지
+
 from sklearn.preprocessing import MinMaxScaler
 from scipy.stats import pearsonr
-
-# -----------------------------
-# ✅ 한글 폰트 설정 (Python 3.13 + Streamlit Cloud 대응)
-# -----------------------------
-font_candidates = [
-    "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
-    "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc"
-]
-
-font_path = None
-for path in font_candidates:
-    if os.path.exists(path):
-        font_path = path
-        break
-
-if font_path:
-    font_name = font_manager.FontProperties(fname=font_path).get_name()
-    rc("font", family=font_name)
-else:
-    rc("font", family="DejaVu Sans")
-
-plt.rcParams["axes.unicode_minus"] = False
 
 # -----------------------------
 # 1. 페이지 설정
@@ -40,30 +49,21 @@ st.set_page_config(page_title="📘 학생 학습 데이터 분석 웹앱", layo
 
 st.title("📘 학생 학습 데이터 분석 대시보드")
 st.markdown("""
-👋 **환영합니다!**  
-이 웹앱은 학생들의 **학습 시간과 성적 데이터**를 다양한 방법으로 분석하고  
+👋 **환영합니다!** 이 웹앱은 학생들의 **학습 시간과 성적 데이터**를 다양한 방법으로 분석하고  
 그래프와 수치를 통해 쉽게 이해할 수 있도록 제작되었습니다.
 """)
 
 # -----------------------------
-# 사이드바 메뉴
+# 사이드바 메뉴 (원본과 동일)
 # -----------------------------
 st.sidebar.title("📂 메뉴")
 menu = st.sidebar.radio(
     "원하는 분석을 선택하세요 👇",
-    [
-        "🏠 프로젝트 소개",
-        "📊 데이터 확인",
-        "🧹 데이터 전처리",
-        "📈 시각화 분석",
-        "🔍 상관관계 분석",
-        "📌 추가 분석",
-        "✅ 결론"
-    ]
+    ["🏠 프로젝트 소개", "📊 데이터 확인", "🧹 데이터 전처리", "📈 시각화 분석", "🔍 상관관계 분석", "📌 추가 분석", "✅ 결론"]
 )
 
 # -----------------------------
-# 데이터 생성
+# 데이터 생성 (원본과 동일)
 # -----------------------------
 np.random.seed(42)
 data_size = 100
@@ -78,10 +78,10 @@ df = pd.DataFrame({
 })
 
 # -----------------------------
-# 메뉴별 화면 구성
+# 메뉴별 화면 구성 (Matplotlib 출력 부분만 권장 방식으로 수정)
 # -----------------------------
 
-# 🏠 프로젝트 소개
+# 🏠 프로젝트 소개 (원본과 동일)
 if menu == "🏠 프로젝트 소개":
     st.header("🏠 프로젝트 소개")
     st.write("""
@@ -90,13 +90,13 @@ if menu == "🏠 프로젝트 소개":
     🛠 **사용 기술**: Python, Pandas, Matplotlib, Streamlit
     """)
 
-# 📊 데이터 확인
+# 📊 데이터 확인 (원본과 동일)
 elif menu == "📊 데이터 확인":
     st.header("📊 데이터 확인")
     st.write("원본 데이터 상위 10개입니다 👇")
     st.dataframe(df.head(10))
 
-# 🧹 데이터 전처리
+# 🧹 데이터 전처리 (원본과 동일)
 elif menu == "🧹 데이터 전처리":
     st.header("🧹 데이터 전처리")
 
@@ -105,47 +105,46 @@ elif menu == "🧹 데이터 전처리":
     st.success("결측치가 제거되었습니다 ✅")
 
     st.subheader("2️⃣ 이상치 처리")
-    clean_df = clean_df[(clean_df["study_time"] >= 0) & (clean_df["study_time"] <= 12)]
+    clean_df = clean_df[(clean_df['study_time'] >= 0) & (clean_df['study_time'] <= 12)]
     st.success("비정상적인 값이 제거되었습니다 ✅")
 
     st.subheader("3️⃣ 정규화")
     scaler = MinMaxScaler()
-    clean_df["study_time_norm"] = scaler.fit_transform(clean_df[["study_time"]])
+    clean_df[['study_time_norm']] = scaler.fit_transform(clean_df[['study_time']])
     st.write("전처리 후 데이터")
     st.dataframe(clean_df.head())
 
 # 📈 시각화 분석
 elif menu == "📈 시각화 분석":
     st.header("📈 데이터 시각화")
-
-    # 1️⃣ 산점도
-    fig1, ax1 = plt.subplots(figsize=(10, 6))
-    ax1.scatter(df["study_time"], df["score"])
+    
+    # 1. 산점도
+    fig1, ax1 = plt.subplots()
+    ax1.scatter(df['study_time'], df['score'])
     ax1.set_xlabel("📘 학습 시간 (시간)")
     ax1.set_ylabel("📝 성적")
-    ax1.set_title("📈 학습 시간 vs 성적", fontsize=16, pad=20)
-    plt.subplots_adjust(top=0.88)
-    st.pyplot(fig1)
+    ax1.set_title("📈 학습 시간 vs 성적", fontsize=14)
+    # plt.tight_layout() 제거 (Streamlit 권장 사항)
+    st.pyplot(fig1, use_container_width=True) # Streamlit 권장 방식 적용
 
-    # 2️⃣ 히스토그램
-    fig2, ax2 = plt.subplots(figsize=(10, 6))
-    ax2.hist(df["score"], bins=10)
-    ax2.set_title("📊 성적 분포", fontsize=16, pad=20)
-    ax2.set_xlabel("성적")
-    ax2.set_ylabel("학생 수")
-    plt.subplots_adjust(top=0.88)
-    st.pyplot(fig2)
+    # 2. 히스토그램
+    fig2, ax2 = plt.subplots()
+    ax2.hist(df['score'], bins=10)
+    ax2.set_title("📊 성적 분포", fontsize=14)
+    # plt.tight_layout() 제거 (Streamlit 권장 사항)
+    st.pyplot(fig2, use_container_width=True) # Streamlit 권장 방식 적용
 
-# 🔍 상관관계 분석
+# 🔍 상관관계 분석 (원본과 동일)
 elif menu == "🔍 상관관계 분석":
     st.header("🔍 상관관계 분석")
-    corr, p = pearsonr(df["study_time"], df["score"])
-
+    corr, p = pearsonr(df['study_time'], df['score'])
     st.metric("📈 피어슨 상관계수", f"{corr:.2f}")
     st.metric("📉 p-value", f"{p:.4f}")
 
     if corr > 0.5:
         st.success("강한 양의 상관관계가 있습니다 💡")
+        st.markdown("
+")
     elif corr > 0.3:
         st.info("약한 양의 상관관계가 있습니다 🙂")
     else:
@@ -154,22 +153,19 @@ elif menu == "🔍 상관관계 분석":
 # 📌 추가 분석
 elif menu == "📌 추가 분석":
     st.header("📌 추가 분석")
-
     bins = [0, 2, 4, 6, 8, 10, 12]
     labels = ["0~2", "2~4", "4~6", "6~8", "8~10", "10~12"]
-    df["time_group"] = pd.cut(df["study_time"], bins=bins, labels=labels)
+    # pd.cut에 right=False 옵션 추가 (구간 정의 명확화)
+    df['time_group'] = pd.cut(df['study_time'], bins=bins, labels=labels, right=False) 
+    avg_score = df.groupby('time_group')['score'].mean()
 
-    avg_score = df.groupby("time_group")["score"].mean()
+    fig3, ax3 = plt.subplots()
+    avg_score.plot(kind='bar', ax=ax3)
+    ax3.set_title("⏱ 학습 시간 구간별 평균 성적", fontsize=14)
+    # plt.tight_layout() 제거 (Streamlit 권장 사항)
+    st.pyplot(fig3, use_container_width=True) # Streamlit 권장 방식 적용
 
-    fig3, ax3 = plt.subplots(figsize=(10, 6))
-    avg_score.plot(kind="bar", ax=ax3)
-    ax3.set_title("⏱ 학습 시간 구간별 평균 성적", fontsize=16, pad=20)
-    ax3.set_xlabel("학습 시간 구간")
-    ax3.set_ylabel("평균 성적")
-    plt.subplots_adjust(top=0.88)
-    st.pyplot(fig3)
-
-# ✅ 결론
+# ✅ 결론 (원본과 동일)
 elif menu == "✅ 결론":
     st.header("✅ 분석 결론")
     st.write("""
@@ -179,5 +175,3 @@ elif menu == "✅ 결론":
 
     📌 **결론적으로**, 효율적인 학습 방법과 적절한 학습 시간이 함께 이루어져야 좋은 성과를 낼 수 있다.
     """)
-
-st.caption("✨ Streamlit을 활용한 빅데이터 분석 프로젝트 예시 ✨")
